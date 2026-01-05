@@ -5,10 +5,6 @@ pub struct Config {
 }
 
 impl Config {
-    pub fn new(folder: String) -> Config {
-        Config { folder }
-    }
-
     pub fn default() -> Config {
         Config {
             folder: String::from(home_path().join(DEFAULT_TEMPLATE_FOLDER).to_str().unwrap()),

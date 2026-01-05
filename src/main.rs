@@ -1,9 +1,13 @@
 use crate::{
-    methods::{clean, help, help_with_error, init},
+    commands::Method,
+    methods::{
+        clean::clean, create::create, help::help, help::help_with_error, init::init, make::make,
+    },
     models::Config,
     utils::{load_config, parse_args},
 };
 
+mod commands;
 mod consts;
 mod file;
 mod methods;
@@ -25,8 +29,10 @@ fn main() {
     };
 
     match cmd.method {
-        utils::Method::Init => init(config, cmd),
-        utils::Method::Clean => clean(config, cmd),
-        utils::Method::Help => help(),
+        Method::Init => init(config, cmd),
+        Method::Clean => clean(config, cmd),
+        Method::Create => create(config, cmd),
+        Method::Make => make(config, cmd),
+        Method::Help => help(),
     }
 }
