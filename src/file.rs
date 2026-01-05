@@ -13,15 +13,9 @@ pub fn exists(filepath: &PathBuf) -> bool {
 }
 
 pub fn mkdir(path: &PathBuf) -> bool {
-    match create_dir(path) {
-        Ok(_) => true,
-        Err(_) => false,
-    }
+    create_dir(path).is_ok()
 }
 
 pub fn rmdir(path: &PathBuf) -> bool {
-    match fs::remove_dir_all(path) {
-        Ok(_) => true,
-        Err(_) => false,
-    }
+    fs::remove_dir_all(path).is_ok()
 }

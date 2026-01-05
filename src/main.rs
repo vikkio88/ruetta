@@ -1,5 +1,5 @@
 use crate::{
-    methods::{clean, init},
+    methods::{clean, help, help_with_error, init},
     models::Config,
     utils::{load_config, parse_args},
 };
@@ -19,17 +19,14 @@ fn main() {
     let cmd = match parsing {
         Ok(c) => c,
         Err(s) => {
-            println!("{}", s);
+            help_with_error(s);
             return;
         }
     };
 
     match cmd.method {
-        utils::Method::Init => init(config),
-        utils::Method::Clean => clean(config),
-        utils::Method::Help => println!("help"),
+        utils::Method::Init => init(config, cmd),
+        utils::Method::Clean => clean(config, cmd),
+        utils::Method::Help => help(),
     }
-
-    // init(config);
-    // clean(config);
 }

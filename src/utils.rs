@@ -34,7 +34,7 @@ pub fn parse_args() -> Result<Command, String> {
     let mut args: Vec<String> = env::args().collect();
     args.remove(0);
 
-    if args.len() < 1 {
+    if args.is_empty() {
         return Err("No command was passed".into());
     }
 
@@ -42,7 +42,8 @@ pub fn parse_args() -> Result<Command, String> {
     let method = match command_name.as_str() {
         "init" | "i" => Method::Init,
         "clean" | "c" => Method::Clean,
-        _ => Method::Help,
+        "help" | "h" | "-h" => Method::Help,
+        _ => return Err(format!("Command '{}' not recognised", command_name)),
     };
 
     Ok(Command { method, args })
