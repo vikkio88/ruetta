@@ -1,4 +1,4 @@
-use std::{env, path::Path};
+use std::{collections::HashMap, env, path::Path};
 
 use crate::{
     commands::{Command, Method},
@@ -13,6 +13,7 @@ pub fn load_config() -> Option<Config> {
     if exists(&full_path.to_path_buf()) {
         return Some(Config {
             folder: "./examples".into(),
+            aliases: HashMap::from([("sv".into(), "svelte".into())]),
         });
     }
 
@@ -28,14 +29,7 @@ pub fn parse_args() -> Result<Command, String> {
     }
 
     let command_name = args.remove(0).to_ascii_lowercase();
-    let method = match command_name.as_str() {
-        "init" | "i" => Method::Init,
-        "clean" | "cl" => Method::Clean,
-        "create" | "c" => Method::Create,
-        "make" | "mk" | "m" => Method::Make,
-        "help" | "h" | "-h" => Method::Help,
-        _ => return Err(format!("Command '{}' not recognised", command_name)),
-    };
+    let method = Method::from(command_name.as_str())?;
 
     Ok(Command { method, args })
 }

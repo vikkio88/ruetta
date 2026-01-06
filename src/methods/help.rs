@@ -14,6 +14,10 @@ USAGE
 COMMANDS
     init     create the template folder
     clean    remove the template folder
+    info     info about a particular template
+        ruetta info svelte component
+    make     create a templated file
+        ruetta make svelte component name /folder/to/dump/in
     help     show this help
 "
     );
