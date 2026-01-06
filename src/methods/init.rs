@@ -1,9 +1,8 @@
 use std::path::PathBuf;
 
 use crate::{
-    commands::Command,
     file::{exists, mkdir},
-    models::Config,
+    models::{Command, Config},
 };
 
 pub fn init(cfg: Config, _cmd: Command) {

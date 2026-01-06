@@ -1,10 +1,9 @@
 use std::path::PathBuf;
 
 use crate::{
-    commands::Command,
     file::{is_dir, mkdir},
     methods::args::get_make_args,
-    models::Config,
+    models::{Command, Config},
 };
 
 pub fn make(cfg: Config, cmd: Command) {

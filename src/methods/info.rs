@@ -1,4 +1,7 @@
-use crate::{commands::Command, methods::args::get_info_args, models::Config};
+use crate::{
+    methods::args::get_info_args,
+    models::{Command, Config},
+};
 
 pub fn info(cfg: Config, cmd: Command) {
     let args = match get_info_args(&cmd.args, &cfg) {

@@ -1,10 +1,9 @@
 use std::{collections::HashMap, env, path::Path};
 
 use crate::{
-    commands::{Command, Method},
     consts::CONFIG_FILE_NAME,
     file::{exists, home_path},
-    models::Config,
+    models::{Command, Config, Method},
 };
 
 pub fn load_config() -> Option<Config> {

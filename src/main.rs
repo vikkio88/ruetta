@@ -1,5 +1,4 @@
 use crate::{
-    commands::Method,
     methods::{
         clean::clean,
         create::create,
@@ -8,11 +7,10 @@ use crate::{
         init::init,
         make::make,
     },
-    models::Config,
+    models::{Config, Method},
     utils::{load_config, parse_args},
 };
 
-mod commands;
 mod consts;
 mod file;
 mod methods;
