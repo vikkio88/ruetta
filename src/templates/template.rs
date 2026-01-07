@@ -1,3 +1,4 @@
+use serde_yml::Value;
 use std::path::PathBuf;
 
 use crate::file::{is_file, read_file};
@@ -27,21 +28,9 @@ impl Template {
         let mut to: Option<String> = None;
         let mut description: Option<String> = None;
 
-        for line in frontmatter.lines() {
-            let line = line.trim();
-            if line.is_empty() {
-                continue;
-            }
-
-            let (key, value) = line.split_once(':').ok_or("Invalid frontmatter line")?;
-
-            let value = value.trim().to_string();
-
-            match key.trim() {
-                KEY_TO => to = Some(value),
-                KEY_DESCRIPTION => description = Some(value),
-                _ => {}
-            }
+        if let Ok(Value::Mapping(map)) = serde_yml::from_str::<Value>(frontmatter) {
+            to = get_string(&map, KEY_TO);
+            description = get_string(&map, KEY_DESCRIPTION);
         }
 
         let to = to.ok_or_else(|| "Missing 'to', file target.".to_string())?;
@@ -66,18 +55,29 @@ impl Template {
     }
 }
 
+fn get_string(map: &serde_yml::Mapping, key: &str) -> Option<String> {
+    map.get(&Value::String(key.into()))
+        .and_then(|v| v.as_str())
+        .map(|s| s.trim().to_string())
+}
+
 #[test]
 fn build_template_from_string() {
     let tpl = Template::from(
         "---
 to: ciao.cpp
-description: some description
+description: |
+    some description
+    more stuff
 ---
 body",
     )
     .unwrap();
 
     assert_eq!(tpl.to, "ciao.cpp");
-    assert_eq!(tpl.description.as_deref(), Some("some description"));
+    assert_eq!(
+        tpl.description.as_deref(),
+        Some("some description\nmore stuff")
+    );
     assert_eq!(tpl.body, "body");
 }
