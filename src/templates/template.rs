@@ -1,3 +1,7 @@
+use std::path::PathBuf;
+
+use crate::file::{is_file, read_file};
+
 const KEY_TO: &str = "to";
 const KEY_DESCRIPTION: &str = "description";
 const FRONT_MATTER_DELIM: &str = "---";
@@ -47,6 +51,18 @@ impl Template {
             description,
             body,
         })
+    }
+
+    pub fn from_file(path: &PathBuf) -> Result<Template, String> {
+        let path = if !is_file(path) {
+            path.join(INDEX_FILE)
+        } else {
+            path.to_path_buf()
+        };
+
+        let content = read_file(&path)?;
+
+        Template::from(&content)
     }
 }
 
