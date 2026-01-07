@@ -15,6 +15,7 @@ mod consts;
 mod file;
 mod methods;
 mod models;
+mod templates;
 mod utils;
 
 fn main() {

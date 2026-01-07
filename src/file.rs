@@ -12,9 +12,9 @@ pub fn exists(filepath: &PathBuf) -> bool {
     fs::exists(filepath).unwrap_or(false)
 }
 
-// pub fn is_file(path: &PathBuf) -> bool {
-//     fs::metadata(path).map(|m| m.is_file()).unwrap_or(false)
-// }
+pub fn is_file(path: &PathBuf) -> bool {
+    fs::metadata(path).map(|m| m.is_file()).unwrap_or(false)
+}
 
 pub fn is_dir(path: &PathBuf) -> bool {
     metadata(path).map(|m| m.is_dir()).unwrap_or(false)
@@ -26,4 +26,10 @@ pub fn mkdir(path: &PathBuf) -> bool {
 
 pub fn rmdir(path: &PathBuf) -> bool {
     remove_dir_all(path).is_ok()
+}
+
+pub fn read_file(path: &PathBuf) -> Result<String, String> {
+    let contents = fs::read_to_string(path).map_err(|e| format!("Cannot load file: {}", e))?;
+
+    Ok(contents)
 }

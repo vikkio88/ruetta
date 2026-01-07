@@ -1,4 +1,7 @@
-use std::path::{Path, PathBuf};
+use std::{
+    collections::HashMap,
+    path::{Path, PathBuf},
+};
 
 use crate::{file::is_dir, models::Config};
 
@@ -14,6 +17,29 @@ fn resolve_alias(cfg: &Config, value: &str) -> String {
         .get(value)
         .cloned()
         .unwrap_or_else(|| value.to_string())
+}
+
+#[test]
+fn resolve_alias_works_with_multiple_keys() {
+    let cfg = Config {
+        folder: "some".into(),
+        aliases: HashMap::from([
+            ("c".into(), "component".into()),
+            ("cmp".into(), "component".into()),
+            ("comp".into(), "component".into()),
+            ("sv".into(), "svelte".into()),
+            ("cls".into(), "class".into()),
+        ]),
+    };
+
+    assert_eq!("component", resolve_alias(&cfg, "component"));
+    assert_eq!("component", resolve_alias(&cfg, "c"));
+    assert_eq!("component", resolve_alias(&cfg, "comp"));
+    assert_eq!("component", resolve_alias(&cfg, "cmp"));
+    assert_eq!("svelte", resolve_alias(&cfg, "sv"));
+    assert_eq!("svelte", resolve_alias(&cfg, "svelte"));
+    assert_eq!("class", resolve_alias(&cfg, "cls"));
+    assert_eq!("class", resolve_alias(&cfg, "class"));
 }
 
 fn ensure_dir(path: &Path, err: String) -> Result<(), String> {
@@ -65,6 +91,7 @@ e.g. ruetta make svelte component Counter src/lib"
 pub struct InfoArgs {
     pub language: String,
     pub template: String,
+    pub path: PathBuf,
 }
 
 pub fn get_info_args(args: &[String], cfg: &Config) -> Result<InfoArgs, String> {
@@ -98,5 +125,15 @@ e.g. ruetta info svelte component"
         ),
     )?;
 
-    Ok(InfoArgs { language, template })
+    Ok(InfoArgs {
+        language,
+        template,
+        path: tmpl_path,
+    })
+}
+
+#[test]
+fn args_parse_info_returns_error_if_folder_does_not_exist() {
+    let res = get_info_args(&["cpp".into(), "mario".into()], &Config::default());
+    assert!(res.is_err());
 }
