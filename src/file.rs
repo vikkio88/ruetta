@@ -33,3 +33,9 @@ pub fn read_file(path: &PathBuf) -> Result<String, String> {
 
     Ok(contents)
 }
+
+pub fn write_file(path: &PathBuf, content: &str) -> Result<(), String> {
+    fs::write(path, content).map_err(|e| format!("Cannot write file: {}", e))?;
+
+    Ok(())
+}

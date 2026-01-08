@@ -9,16 +9,49 @@ pub fn help() {
 ruetta
 
 USAGE
-    ruetta <command>
+    ruetta <command> [arguments]
 
 COMMANDS
-    init     create the template folder
-    clean    remove the template folder
-    info     info about a particular template
-        ruetta info svelte component
-    make     create a templated file
-        ruetta make svelte component name /folder/to/dump/in
-    help     show this help
+    init
+        create the template folder
+
+        example:
+            ruetta init
+
+    clean
+        aliases: cl
+        remove the template folder
+
+        example:
+            ruetta clean
+
+    info
+        aliases: i
+        show information about a template
+
+        example:
+            ruetta info svelte component
+
+    create
+        aliases: c
+        create a new template definition
+
+        example:
+            ruetta create svelte component
+
+    make
+        aliases: m, mk
+        generate a file from a template
+
+        example:
+            ruetta make svelte component Button ./src/components
+
+    help
+        aliases: h, -h
+        show this help message
+
+        example:
+            ruetta help
 "
     );
 }

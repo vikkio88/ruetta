@@ -1,13 +1,11 @@
-use std::{
-    collections::HashMap,
-    path::{Path, PathBuf},
-};
+use std::path::{Path, PathBuf};
 
 use crate::{file::is_dir, models::Config};
 
 pub struct MakeArgs {
     pub language: String,
     pub template: String,
+    pub template_path: PathBuf,
     pub target_folder: String,
     pub name: String,
 }
@@ -19,27 +17,32 @@ fn resolve_alias(cfg: &Config, value: &str) -> String {
         .unwrap_or_else(|| value.to_string())
 }
 
-#[test]
-fn resolve_alias_works_with_multiple_keys() {
-    let cfg = Config {
-        folder: "some".into(),
-        aliases: HashMap::from([
-            ("c".into(), "component".into()),
-            ("cmp".into(), "component".into()),
-            ("comp".into(), "component".into()),
-            ("sv".into(), "svelte".into()),
-            ("cls".into(), "class".into()),
-        ]),
-    };
+#[cfg(test)]
+mod test {
+    use super::*;
+    use std::collections::HashMap;
+    #[test]
+    fn resolve_alias_works_with_multiple_keys() {
+        let cfg = Config {
+            folder: "some".into(),
+            aliases: HashMap::from([
+                ("c".into(), "component".into()),
+                ("cmp".into(), "component".into()),
+                ("comp".into(), "component".into()),
+                ("sv".into(), "svelte".into()),
+                ("cls".into(), "class".into()),
+            ]),
+        };
 
-    assert_eq!("component", resolve_alias(&cfg, "component"));
-    assert_eq!("component", resolve_alias(&cfg, "c"));
-    assert_eq!("component", resolve_alias(&cfg, "comp"));
-    assert_eq!("component", resolve_alias(&cfg, "cmp"));
-    assert_eq!("svelte", resolve_alias(&cfg, "sv"));
-    assert_eq!("svelte", resolve_alias(&cfg, "svelte"));
-    assert_eq!("class", resolve_alias(&cfg, "cls"));
-    assert_eq!("class", resolve_alias(&cfg, "class"));
+        assert_eq!("component", resolve_alias(&cfg, "component"));
+        assert_eq!("component", resolve_alias(&cfg, "c"));
+        assert_eq!("component", resolve_alias(&cfg, "comp"));
+        assert_eq!("component", resolve_alias(&cfg, "cmp"));
+        assert_eq!("svelte", resolve_alias(&cfg, "sv"));
+        assert_eq!("svelte", resolve_alias(&cfg, "svelte"));
+        assert_eq!("class", resolve_alias(&cfg, "cls"));
+        assert_eq!("class", resolve_alias(&cfg, "class"));
+    }
 }
 
 fn ensure_dir(path: &Path, err: String) -> Result<(), String> {
@@ -83,14 +86,15 @@ e.g. ruetta make svelte component Counter src/lib"
     Ok(MakeArgs {
         language,
         template,
+        template_path: tmpl_path,
         target_folder: target_folder.clone(),
         name: name.clone(),
     })
 }
 
 pub struct InfoArgs {
-    pub language: String,
-    pub template: String,
+    language: String,
+    template: String,
     pub path: PathBuf,
 }
 
