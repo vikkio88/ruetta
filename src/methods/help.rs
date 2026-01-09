@@ -1,3 +1,5 @@
+use crate::methods::{consts::HEADER, version::get_version};
+
 pub fn help_with_error(msg: String) {
     println!("error: {}\n", msg);
     help();
@@ -6,7 +8,9 @@ pub fn help_with_error(msg: String) {
 pub fn help() {
     println!(
         "\
-ruetta
+{}
+
+version: {}
 
 USAGE
     ruetta <command> [arguments]
@@ -52,6 +56,14 @@ COMMANDS
 
         example:
             ruetta help
-"
+    version
+        aliases: v, -v, --version
+        show the app version
+
+        example:
+            ruetta help
+",
+        HEADER,
+        get_version()
     );
 }

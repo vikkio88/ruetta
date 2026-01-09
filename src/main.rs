@@ -6,6 +6,7 @@ use crate::{
         info::info,
         init::init,
         make::make,
+        version::version,
     },
     models::{Config, Method},
     utils::{load_config, parse_args},
@@ -39,5 +40,6 @@ fn main() {
         Method::Create => create(config, cmd),
         Method::Make => make(config, cmd),
         Method::Help => help(),
+        Method::Version => version(),
     }
 }

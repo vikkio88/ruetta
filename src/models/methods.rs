@@ -8,6 +8,7 @@ pub enum Method {
     Create,
     Make,
     Help,
+    Version,
 }
 impl Display for Method {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -18,6 +19,7 @@ impl Display for Method {
             Method::Create => "create",
             Method::Make => "make",
             Method::Help => "help",
+            Method::Version => "version",
         };
         write!(f, "{}", name)
     }
@@ -32,6 +34,7 @@ impl Method {
             "create" | "c" => Self::Create,
             "make" | "mk" | "m" => Self::Make,
             "help" | "h" | "-h" => Self::Help,
+            "version" | "-v" | "--version" | "v" => Self::Version,
             _ => return Err(format!("Command '{}' not recognised", method)),
         })
     }
