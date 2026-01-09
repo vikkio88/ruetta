@@ -1,7 +1,6 @@
 use dojang::Dojang;
 
-//TODO: maybe write my own ejs parser as I only need bits of things
-
+// TODO: maybe write my own ejs parser as I only need bits of things
 pub fn parse_ejs(raw: String, values: serde_json::Value) -> Result<String, String> {
     let mut parser = Dojang::new();
     _ = parser.add("tmp".into(), raw);

@@ -13,7 +13,7 @@ pub fn info(cfg: Config, cmd: Command) {
         }
     };
 
-    let tpl = match Template::from_file(&args.path) {
+    let tpl = match Template::load_from_folder(&args.path) {
         Ok(t) => t,
         Err(e) => {
             eprintln!("Failed to load template: {}", e);
@@ -21,11 +21,19 @@ pub fn info(cfg: Config, cmd: Command) {
         }
     };
 
-    match tpl.description {
-        Some(desc) => println!("{}:\n\t{}", args.path.display(), desc),
+    let files = tpl.files().len();
+
+    match tpl.description() {
+        Some(desc) => println!(
+            "{}:\n\t{}\n\nthis template will create: {} file(s)",
+            args.path.display(),
+            desc,
+            files
+        ),
         None => println!(
-            "{}:\n\tNo description available for this template.",
-            args.path.display()
+            "{}:\n\tNo description available for this template.\n\nthis template will create: {} file(s)",
+            args.path.display(),
+            files
         ),
     }
 }

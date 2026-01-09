@@ -29,7 +29,8 @@ pub fn rmdir(path: &PathBuf) -> bool {
 }
 
 pub fn read_file(path: &PathBuf) -> Result<String, String> {
-    let contents = fs::read_to_string(path).map_err(|e| format!("Cannot load file: {}", e))?;
+    let contents = fs::read_to_string(path)
+        .map_err(|e| format!("Cannot load file '{}': {}", path.display(), e))?;
 
     Ok(contents)
 }

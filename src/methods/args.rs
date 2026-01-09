@@ -8,6 +8,8 @@ pub struct MakeArgs {
     pub template_path: PathBuf,
     pub target_folder: String,
     pub name: String,
+    pub is_dry_run: bool,
+    pub is_force: bool,
 }
 
 fn resolve_alias(cfg: &Config, value: &str) -> String {
@@ -53,13 +55,22 @@ fn ensure_dir(path: &Path, err: String) -> Result<(), String> {
     }
 }
 pub fn get_make_args(args: &[String], cfg: &Config) -> Result<MakeArgs, String> {
-    let [lang, tmpl, name, target_folder] = args else {
+    let [lang, tmpl, name, target_folder, rest @ ..] = args else {
         return Err("Missing argument(s):
 Example usage:
     ruetta make <language> <template> <name> <target_folder>
 e.g. ruetta make svelte component Counter src/lib"
             .to_string());
     };
+    let mut is_dry_run = false;
+    let mut is_force = false;
+    for arg in rest {
+        match arg.as_str() {
+            "--dry-run" => is_dry_run = true,
+            "--force" => is_force = true,
+            _ => {}
+        }
+    }
 
     let language = resolve_alias(cfg, lang);
     let base = PathBuf::from(&cfg.folder).join(&language);
@@ -89,6 +100,8 @@ e.g. ruetta make svelte component Counter src/lib"
         template_path: tmpl_path,
         target_folder: target_folder.clone(),
         name: name.clone(),
+        is_dry_run,
+        is_force,
     })
 }
 

@@ -1,10 +1,15 @@
 ---
 description: a simple Svelte Component
 to: <%- folder %>/<%= Name %>.svelte
+files:
+    - types
 ---
 <script lang="ts">
-  type Props = {};
-  const {}: Props = $props();
+  import { type <%= Name %> } from "./types.ts";
+  type Props = {
+    <%= name %>: <%= Name %>
+  };
+  const {<%= name %>}: Props = $props();
 </script>
 
 <h3><%= Name %></h3>

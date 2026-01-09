@@ -1,0 +1,6 @@
+---
+description: a simple Svelte Component
+to: <%- folder %>/types.ts
+exclude_if: <%= noTypes %>
+---
+export type <%= Name %> = { <%= name %>: string };
