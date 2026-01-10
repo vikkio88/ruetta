@@ -8,62 +8,45 @@ pub fn help_with_error(msg: String) {
 pub fn help() {
     println!(
         "\
-{}
+{header}
+version {version}
 
-version: {}
+Sourcecode scaffolding utility
+https://github.com/vikkio88/ruetta
 
 USAGE
-    ruetta <command> [arguments]
+  ruetta <command> [arguments]
 
 COMMANDS
-    init
-        create the template folder
+  init
+    Create the template folder
+    Example: ruetta init
 
-        example:
-            ruetta init
+  clean (cl)
+    Remove the template folder
+    Example: ruetta clean
 
-    clean
-        aliases: cl
-        remove the template folder
+  info (i)
+    Show information about a template
+    Example: ruetta info svelte component
 
-        example:
-            ruetta clean
+  create (c)
+    Create a new template definition
+    Example: ruetta create svelte component
 
-    info
-        aliases: i
-        show information about a template
+  make (m, mk)
+    Generate files from a template
+    Example: ruetta make svelte component Button ./src/components
 
-        example:
-            ruetta info svelte component
+  help (h, -h)
+    Show this help message
+    Example: ruetta help
 
-    create
-        aliases: c
-        create a new template definition
-
-        example:
-            ruetta create svelte component
-
-    make
-        aliases: m, mk
-        generate a file from a template
-
-        example:
-            ruetta make svelte component Button ./src/components
-
-    help
-        aliases: h, -h
-        show this help message
-
-        example:
-            ruetta help
-    version
-        aliases: v, -v, --version
-        show the app version
-
-        example:
-            ruetta help
+  version (v, -v, --version)
+    Show the app version
+    Example: ruetta version
 ",
-        HEADER,
-        get_version()
+        header = HEADER,
+        version = get_version(),
     );
 }

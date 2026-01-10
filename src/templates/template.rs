@@ -1,7 +1,7 @@
 use std::path::PathBuf;
 
 use crate::{
-    file::{is_file, read_file, write_file},
+    file::{exists, is_file, read_file, write_file},
     templates::ejs::parse_ejs,
 };
 
@@ -10,11 +10,18 @@ const FRONT_MATTER_DELIM: &str = "---";
 pub const INDEX_FILE: &str = "index.ruetta";
 pub const RUETTA_EXT: &str = "ruetta";
 
+pub struct WriteParams<'a> {
+    pub name: &'a str,
+    pub target_folder: &'a str,
+    pub is_force: bool,
+}
+
 pub struct Template {
     pub additional_files: Vec<RuettaFile>,
     pub index: RuettaFile,
     pub path: PathBuf,
 }
+
 impl Template {
     pub fn load_from_folder(path: &PathBuf) -> Result<Template, String> {
         let main_path = path.clone();
@@ -44,7 +51,7 @@ impl Template {
 
     pub fn description(&self) -> Option<&String> {
         match &self.index.description {
-            Some(s) => Some(&s),
+            Some(s) => Some(s),
             None => None,
         }
     }
@@ -55,25 +62,31 @@ impl Template {
             .collect()
     }
 
-    // TODO: check if file exists before creating it
-    // TODO: pass force and additional vars
     // TODO: pass other variables as json? just to make sure we could pass vars
-    // TODO: if has append param maybe just add if file exists
-    pub fn write(&self, name: &str, target_folder: &str) -> Result<String, String> {
+    // TODO: if has append param maybe just add if file exists "inject in hygen"
+    pub fn write(&self, params: WriteParams) -> Result<String, String> {
         let mut written_paths = Vec::new();
-
         for file in self.files() {
             let to = file
-                .to(name, target_folder)
+                .to(params.name, params.target_folder)
                 .map_err(|e| format!("Error whilst trying to get target name: {}", e))?;
 
-            let body = file.body(name).map_err(|err| {
+            let body = file.body(params.name).map_err(|err| {
                 format!(
                     "Cannot render body of the template: {}\nerror: {}",
                     self.path.display(),
                     err
                 )
             })?;
+
+            let target_path = &PathBuf::from(&to);
+            // TODO: add check whether we are 'inject'
+            if exists(target_path) && !params.is_force {
+                return Err(format!(
+                    "File '{}' exists already, if you want to overwrite use '--force' param to force.",
+                    target_path.display()
+                ));
+            }
 
             write_file(&PathBuf::from(&to), &body).map_err(|err| {
                 format!("Error whilst writing the file '{}'\n\terror: {}", to, err)
@@ -155,7 +168,7 @@ fn ruetta_parts(input: &str) -> Result<(&str, String), String> {
     let frontmatter = parts.next().ok_or("Missing frontmatter")?;
     let body = parts.next().unwrap_or("").trim_start().to_string();
 
-    return Ok((frontmatter, body));
+    Ok((frontmatter, body))
 }
 
 #[derive(serde::Deserialize)]

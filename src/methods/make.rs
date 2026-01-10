@@ -4,10 +4,9 @@ use crate::{
     file::{is_dir, mkdir},
     methods::args::get_make_args,
     models::{Command, Config},
-    templates::Template,
+    templates::{Template, WriteParams},
 };
 
-// TODO: maybe add dry run option
 pub fn make(cfg: Config, cmd: Command) {
     let args = match get_make_args(&cmd.args, &cfg) {
         Ok(args) => args,
@@ -26,12 +25,12 @@ pub fn make(cfg: Config, cmd: Command) {
     };
     let target_folder = &PathBuf::from(&args.target_folder);
 
-    if !is_dir(&target_folder) {
+    if !is_dir(target_folder) {
         println!(
             "target folder '{}' does not exist creating it...",
             args.target_folder
         );
-        if !mkdir(&target_folder) {
+        if !mkdir(target_folder) {
             println!("error: could not create folder '{}'", args.target_folder);
             return;
         }
@@ -47,8 +46,15 @@ pub fn make(cfg: Config, cmd: Command) {
         }
         return;
     }
+    if args.is_force {
+        println!("'--force' param was passed, forcing overwrite if files exist.")
+    }
 
-    match tpl.write(&args.name, &args.target_folder) {
+    match tpl.write(WriteParams {
+        name: &args.name,
+        target_folder: &args.target_folder,
+        is_force: args.is_force,
+    }) {
         Ok(res) => println!("{}", res),
         Err(err) => println!("{}", err),
     };

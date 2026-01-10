@@ -1,5 +1,5 @@
 pub fn get_version() -> String {
-    format!("{}", env!("CARGO_PKG_VERSION"))
+    env!("CARGO_PKG_VERSION").to_string()
 }
 
 pub fn version() {

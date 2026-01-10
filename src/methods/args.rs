@@ -3,8 +3,6 @@ use std::path::{Path, PathBuf};
 use crate::{file::is_dir, models::Config};
 
 pub struct MakeArgs {
-    pub language: String,
-    pub template: String,
     pub template_path: PathBuf,
     pub target_folder: String,
     pub name: String,
@@ -95,8 +93,6 @@ e.g. ruetta make svelte component Counter src/lib"
     )?;
 
     Ok(MakeArgs {
-        language,
-        template,
         template_path: tmpl_path,
         target_folder: target_folder.clone(),
         name: name.clone(),
@@ -106,8 +102,6 @@ e.g. ruetta make svelte component Counter src/lib"
 }
 
 pub struct InfoArgs {
-    language: String,
-    template: String,
     pub path: PathBuf,
 }
 
@@ -142,11 +136,7 @@ e.g. ruetta info svelte component"
         ),
     )?;
 
-    Ok(InfoArgs {
-        language,
-        template,
-        path: tmpl_path,
-    })
+    Ok(InfoArgs { path: tmpl_path })
 }
 
 #[test]

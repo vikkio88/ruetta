@@ -1,2 +1,1 @@
-pub const HEADER: &str = "ruetta
-    sourcecode scaffolding utility";
+pub const HEADER: &str = "ruetta\n";
