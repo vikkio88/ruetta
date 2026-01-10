@@ -93,8 +93,12 @@ Each template folder can have multiple files but always needs an `index.ruetta` 
 Each file has a [Frontmatter](https://jekyllrb.com/docs/front-matter/) part for the template configuration and a **body**, that will be rendered in the file.
 
 On the **Frontmatter**:
+
 **description**: will be shown on **info** command.
+
 **to**: will be computed to set the destination of this file.
+
 **files**: will only be read if it is an index file and specified if any other files in this template and maintain the order whilst generating them.
+
 
 On the body, you can use [EJS](https://ejs.co/) syntax.
