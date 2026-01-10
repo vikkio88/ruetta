@@ -1,4 +1,6 @@
 # Ruetta
+[crates.io](https://crates.io/crates/ruetta)
+
 Rust cli tool to replace [hygen](https://github.com/jondot/hygen) templates, which is unmaintaned.
 
 ## Usage
