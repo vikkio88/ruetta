@@ -25,7 +25,7 @@ pub fn mkdir(path: &PathBuf) -> bool {
 }
 
 pub fn rmdir(path: &PathBuf) -> bool {
-    if !exists(&path) {
+    if !exists(path) {
         return true;
     }
     remove_dir_all(path).is_ok()
@@ -49,8 +49,5 @@ pub fn rm_file(path: &PathBuf) -> bool {
         return true;
     }
 
-    match fs::remove_file(path) {
-        Ok(_) => true,
-        Err(_) => false,
-    }
+    fs::remove_file(path).is_ok()
 }

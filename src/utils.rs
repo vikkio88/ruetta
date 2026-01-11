@@ -1,4 +1,4 @@
-use std::{collections::HashMap, env, path::Path};
+use std::{env, path::Path};
 
 use crate::{
     consts::CONFIG_FILE_NAME,
@@ -23,13 +23,13 @@ pub fn load_config() -> Option<Config> {
 
     let config: Config = match serde_json::from_str(&content) {
         Ok(c) => c,
-        Err(err) => {
+        Err(_) => {
             println!("Could not parse config file from '{}'", full_path.display());
             return None;
         }
     };
 
-    return Some(config);
+    Some(config)
 }
 
 pub fn parse_args() -> Result<Command, String> {
