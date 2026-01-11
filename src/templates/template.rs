@@ -71,7 +71,16 @@ impl Template {
                 .to(params.name, params.target_folder)
                 .map_err(|e| format!("Error whilst trying to get target name: {}", e))?;
 
-            let body = file.body(params.name).map_err(|err| {
+            let target_path = &PathBuf::from(&to);
+
+            if exists(target_path) && !params.is_force && !file.append_after.is_some() {
+                return Err(format!(
+                    "File '{}' exists already, if you want to overwrite use '--force' param to force.",
+                    target_path.display()
+                ));
+            }
+
+            let mut body = file.body(params.name).map_err(|err| {
                 format!(
                     "Cannot render body of the template: {}\nerror: {}",
                     self.path.display(),
@@ -79,13 +88,16 @@ impl Template {
                 )
             })?;
 
-            let target_path = &PathBuf::from(&to);
-            // TODO: add check whether we are 'inject'
-            if exists(target_path) && !params.is_force {
-                return Err(format!(
-                    "File '{}' exists already, if you want to overwrite use '--force' param to force.",
-                    target_path.display()
-                ));
+            if exists(target_path) {
+                if let Some(pattern) = file.append_after.as_deref() {
+                    let existing_body = read_file(target_path)?;
+
+                    body = if let Some((before, after)) = existing_body.split_once(pattern) {
+                        format!("{}{}{}", before, body, after)
+                    } else {
+                        format!("{}{}", existing_body, body)
+                    };
+                }
             }
 
             write_file(&PathBuf::from(&to), &body).map_err(|err| {
@@ -113,7 +125,7 @@ impl RuettaIndex {
             .ok_or_else(|| "Missing 'to', file target.".to_string())?;
         let additional_files = parsed.files.unwrap_or_default();
         Ok((
-            RuettaFile::new(to, parsed.description, body),
+            RuettaFile::new(to, parsed.description, parsed.append_after, body),
             additional_files,
         ))
     }
@@ -122,6 +134,7 @@ impl RuettaIndex {
 pub struct RuettaFile {
     to: String,
     pub description: Option<String>,
+    pub append_after: Option<String>,
     body: String,
 }
 
@@ -132,13 +145,24 @@ impl RuettaFile {
         let to = parsed
             .to
             .ok_or_else(|| "Missing 'to', file target.".to_string())?;
-        Ok(RuettaFile::new(to, parsed.description, body))
+        Ok(RuettaFile::new(
+            to,
+            parsed.description,
+            parsed.append_after,
+            body,
+        ))
     }
 
-    pub fn new(to: String, description: Option<String>, body: String) -> RuettaFile {
+    pub fn new(
+        to: String,
+        description: Option<String>,
+        append_after: Option<String>,
+        body: String,
+    ) -> RuettaFile {
         RuettaFile {
             to,
             description,
+            append_after,
             body,
         }
     }
@@ -175,6 +199,7 @@ fn ruetta_parts(input: &str) -> Result<(&str, String), String> {
 struct FrontMatterParsed {
     to: Option<String>,
     description: Option<String>,
+    append_after: Option<String>,
     files: Option<Vec<String>>,
 }
 
