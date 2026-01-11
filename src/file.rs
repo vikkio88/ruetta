@@ -25,6 +25,9 @@ pub fn mkdir(path: &PathBuf) -> bool {
 }
 
 pub fn rmdir(path: &PathBuf) -> bool {
+    if !exists(&path) {
+        return true;
+    }
     remove_dir_all(path).is_ok()
 }
 
@@ -39,4 +42,15 @@ pub fn write_file(path: &PathBuf, content: &str) -> Result<(), String> {
     fs::write(path, content).map_err(|e| format!("Cannot write file: {}", e))?;
 
     Ok(())
+}
+
+pub fn rm_file(path: &PathBuf) -> bool {
+    if !path.exists() {
+        return true;
+    }
+
+    match fs::remove_file(path) {
+        Ok(_) => true,
+        Err(_) => false,
+    }
 }

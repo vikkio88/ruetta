@@ -1,4 +1,5 @@
 use crate::{
+    consts::CONFIG_FILE_NAME,
     methods::{
         clean::clean,
         create::create,
@@ -20,16 +21,25 @@ mod templates;
 mod utils;
 
 fn main() {
-    let config = match load_config() {
-        Some(f) => f,
-        None => Config::default(),
-    };
     let parsing = parse_args();
     let cmd = match parsing {
         Ok(c) => c,
         Err(s) => {
             help_with_error(s);
             return;
+        }
+    };
+
+    let config = match load_config() {
+        Some(f) => f,
+        None => {
+            if cmd.method != Method::Init {
+                println!(
+                    "could not load '{}' using default config.",
+                    CONFIG_FILE_NAME
+                );
+            }
+            Config::default()
         }
     };
 

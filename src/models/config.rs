@@ -1,7 +1,10 @@
 use std::collections::HashMap;
 
+use serde::{Deserialize, Serialize};
+
 use crate::{consts::DEFAULT_TEMPLATE_FOLDER, file::home_path};
 
+#[derive(Serialize, Deserialize)]
 pub struct Config {
     pub folder: String,
     pub aliases: HashMap<String, String>,
