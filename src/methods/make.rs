@@ -46,6 +46,7 @@ pub fn make(cfg: Config, cmd: Command) {
         }
         return;
     }
+
     if args.is_force {
         println!("'--force' param was passed, forcing overwrite if files exist.")
     }
@@ -54,6 +55,7 @@ pub fn make(cfg: Config, cmd: Command) {
         name: &args.name,
         target_folder: &args.target_folder,
         is_force: args.is_force,
+        vars: args.vars,
     }) {
         Ok(res) => println!("{}", res),
         Err(err) => println!("{}", err),

@@ -13,3 +13,7 @@ files:
 </script>
 
 <h3><%= Name %></h3>
+
+<% if (condition) { %>
+<h1>It worked</h1>
+<% } %>
