@@ -72,8 +72,9 @@ impl Template {
                 .map_err(|e| format!("Error whilst trying to get target name: {}", e))?;
 
             let target_path = &PathBuf::from(&to);
+            let is_appending = file.append.is_some_and(|x| x) || file.append_after.is_some();
 
-            if exists(target_path) && !params.is_force && !file.append_after.is_some() {
+            if exists(target_path) && !params.is_force && !is_appending {
                 return Err(format!(
                     "File '{}' exists already, if you want to overwrite use '--force' param to force.",
                     target_path.display()
@@ -88,15 +89,16 @@ impl Template {
                 )
             })?;
 
-            if exists(target_path) {
+            if exists(target_path) && is_appending {
+                let existing_body = read_file(target_path)?;
                 if let Some(pattern) = file.append_after.as_deref() {
-                    let existing_body = read_file(target_path)?;
-
                     body = if let Some((before, after)) = existing_body.split_once(pattern) {
                         format!("{}{}{}", before, body, after)
                     } else {
                         format!("{}{}", existing_body, body)
                     };
+                } else if file.append.is_some_and(|is_appending| is_appending) {
+                    body = format!("{}{}", existing_body, body);
                 }
             }
 
@@ -125,7 +127,13 @@ impl RuettaIndex {
             .ok_or_else(|| "Missing 'to', file target.".to_string())?;
         let additional_files = parsed.files.unwrap_or_default();
         Ok((
-            RuettaFile::new(to, parsed.description, parsed.append_after, body),
+            RuettaFile::new(
+                to,
+                parsed.description,
+                parsed.append_after,
+                parsed.append,
+                body,
+            ),
             additional_files,
         ))
     }
@@ -135,6 +143,7 @@ pub struct RuettaFile {
     to: String,
     pub description: Option<String>,
     pub append_after: Option<String>,
+    pub append: Option<bool>,
     body: String,
 }
 
@@ -149,6 +158,7 @@ impl RuettaFile {
             to,
             parsed.description,
             parsed.append_after,
+            parsed.append,
             body,
         ))
     }
@@ -157,12 +167,14 @@ impl RuettaFile {
         to: String,
         description: Option<String>,
         append_after: Option<String>,
+        append: Option<bool>,
         body: String,
     ) -> RuettaFile {
         RuettaFile {
             to,
             description,
             append_after,
+            append,
             body,
         }
     }
@@ -200,6 +212,7 @@ struct FrontMatterParsed {
     to: Option<String>,
     description: Option<String>,
     append_after: Option<String>,
+    append: Option<bool>,
     files: Option<Vec<String>>,
 }
 
