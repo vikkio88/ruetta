@@ -5,10 +5,16 @@ files:
     - types
 ---
 <script lang="ts">
+<% if !(noTypes) { %>
   import { type <%= Name %> } from "./types.ts";
   type Props = {
     <%= name %>: <%= Name %>
   };
+<% } else { %>
+  type Props = {
+    <%= name %>: string
+  };
+<% } %>
   const {<%= name %>}: Props = $props();
 </script>
 

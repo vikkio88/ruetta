@@ -61,7 +61,6 @@ impl Template {
             .collect()
     }
 
-    // TODO: pass other variables as json? just to make sure we could pass vars
     // TODO: move this method to file itself
     pub fn write(&self, params: WriteParams) -> Result<String, String> {
         let mut written_paths = Vec::new();
@@ -69,6 +68,10 @@ impl Template {
             let to = file
                 .to(params.name, params.target_folder)
                 .map_err(|e| format!("Error whilst trying to get target name: {}", e))?;
+            if file.should_exclude(params.vars.as_ref()) {
+                println!("Excluding file '{}'", to);
+                continue;
+            }
 
             let target_path = &PathBuf::from(&to);
             let is_appending = file.append.is_some_and(|x| x) || file.append_after.is_some();

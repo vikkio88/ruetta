@@ -16,21 +16,18 @@ pub struct RuettaIndex();
 impl RuettaIndex {
     pub fn from(input: &str) -> Result<(RuettaFile, Vec<String>), String> {
         let (frontmatter, body) = ruetta_parts(input)?;
-        let parsed = parse_frontmatter(frontmatter)?;
-        let to = parsed
+        let mut parsed_fm = parse_frontmatter(frontmatter)?;
+
+        let to = parsed_fm
             .to
+            .take()
             .ok_or_else(|| "Missing 'to', file target.".to_string())?;
-        let additional_files = parsed.files.unwrap_or_default();
-        Ok((
-            RuettaFile::new(
-                to,
-                parsed.description,
-                parsed.append_after,
-                parsed.append,
-                body,
-            ),
-            additional_files,
-        ))
+
+        let additional_files = parsed_fm.files.take().unwrap_or_default();
+
+        let file = RuettaFile::new(to, body, parsed_fm);
+
+        Ok((file, additional_files))
     }
 }
 
@@ -39,39 +36,39 @@ pub struct RuettaFile {
     pub description: Option<String>,
     pub append_after: Option<String>,
     pub append: Option<bool>,
+    pub exclude_if: Option<String>,
     body: String,
 }
 
 impl RuettaFile {
     pub fn from(input: &str) -> Result<RuettaFile, String> {
         let (frontmatter, body) = ruetta_parts(input)?;
-        let parsed = parse_frontmatter(frontmatter)?;
-        let to = parsed
+        let mut parsed_fm = parse_frontmatter(frontmatter)?;
+
+        let to = parsed_fm
             .to
+            .take()
             .ok_or_else(|| "Missing 'to', file target.".to_string())?;
-        Ok(RuettaFile::new(
-            to,
-            parsed.description,
-            parsed.append_after,
-            parsed.append,
-            body,
-        ))
+
+        Ok(RuettaFile::new(to, body, parsed_fm))
     }
 
-    pub fn new(
-        to: String,
-        description: Option<String>,
-        append_after: Option<String>,
-        append: Option<bool>,
-        body: String,
-    ) -> RuettaFile {
+    pub fn new(to: String, body: String, fm: FrontMatterParsed) -> RuettaFile {
         RuettaFile {
             to,
-            description,
-            append_after,
-            append,
+            description: fm.description,
+            append_after: fm.append_after,
+            append: fm.append,
+            exclude_if: fm.exclude_if,
             body,
         }
+    }
+
+    pub fn should_exclude(&self, vars: Option<&HashMap<String, String>>) -> bool {
+        self.exclude_if
+            .as_deref()
+            .and_then(|k| vars.map(|v| v.contains_key(k)))
+            .unwrap_or(false)
     }
 
     pub fn to(&self, name: &str, folder: &str) -> Result<String, String> {
@@ -102,13 +99,13 @@ impl RuettaFile {
 }
 
 #[derive(serde::Deserialize)]
-struct FrontMatterParsed {
+pub struct FrontMatterParsed {
     to: Option<String>,
     description: Option<String>,
     append_after: Option<String>,
     append: Option<bool>,
     files: Option<Vec<String>>,
-    //TODO: exclude_if with vars
+    exclude_if: Option<String>,
 }
 
 fn parse_frontmatter(frontmatter: &str) -> Result<FrontMatterParsed, String> {
@@ -209,5 +206,52 @@ body",
 
         let parsed = parse_frontmatter(fm).unwrap();
         assert_eq!(parsed.files.unwrap(), ["stuff", "things"])
+    }
+
+    #[test]
+    fn parse_append() {
+        let (fm, _) = ruetta_parts(
+            "---
+to: <%- folder %>/<%= Name %>.cpp
+append: true
+---
+body",
+        )
+        .unwrap();
+
+        let parsed = parse_frontmatter(fm).unwrap();
+        assert_eq!(parsed.append.unwrap(), true);
+        assert!(parsed.append_after.is_none());
+    }
+
+    #[test]
+    fn parse_append_after() {
+        let (fm, _) = ruetta_parts(
+            "---
+to: <%- folder %>/<%= Name %>.cpp
+append_after: something
+---
+body",
+        )
+        .unwrap();
+
+        let parsed = parse_frontmatter(fm).unwrap();
+        assert!(parsed.append.is_none());
+        assert_eq!(parsed.append_after.unwrap(), "something".to_string());
+    }
+
+    #[test]
+    fn parse_exclude_if() {
+        let (fm, _) = ruetta_parts(
+            "---
+to: <%- folder %>/<%= Name %>.cpp
+exclude_if: something
+---
+body",
+        )
+        .unwrap();
+
+        let parsed = parse_frontmatter(fm).unwrap();
+        assert_eq!(parsed.exclude_if.unwrap(), "something".to_string());
     }
 }
