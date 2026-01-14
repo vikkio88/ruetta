@@ -1,8 +1,13 @@
 use std::{collections::HashMap, path::PathBuf};
 
+use serde_json::{Map, Value};
+
 use crate::{
     file::{exists, is_file, read_file, write_file},
-    templates::files::{RuettaFile, RuettaIndex},
+    templates::{
+        ejs::parse_ejs,
+        files::{RuettaFile, RuettaIndex},
+    },
 };
 
 pub const INDEX_FILE: &str = "index.ruetta";
@@ -82,8 +87,9 @@ impl Template {
                     target_path.display()
                 ));
             }
+            let parsed_vars = parse_vars(&params.vars);
 
-            let mut body = file.body(params.name, &params.vars).map_err(|err| {
+            let mut body = file.body(params.name, &parsed_vars).map_err(|err| {
                 format!(
                     "Cannot render body of the template: {}\nerror: {}",
                     self.path.display(),
@@ -93,15 +99,19 @@ impl Template {
 
             if exists(target_path) && is_appending {
                 let existing_body = read_file(target_path)?;
-                if let Some(pattern) = file.append_after.as_deref() {
-                    body = if let Some((before, after)) = existing_body.split_once(pattern) {
-                        format!("{}{}{}", before, body, after)
-                    } else {
-                        format!("{}{}", existing_body, body)
-                    };
-                } else if file.append.is_some_and(|is_appending| is_appending) {
-                    body = format!("{}{}", existing_body, body);
-                }
+                body = if let Some(pattern) = file.append_after.as_deref() {
+                    let pattern = parse_ejs(pattern.into(), vars_to_value(&parsed_vars))
+                        .unwrap_or(pattern.into());
+                    //TODO: fix this looks a bit weird, I think I need to insert instead of split?
+                    match existing_body.split_once(&pattern) {
+                        Some((before, after)) => format!("{}{}{}", before, body, after),
+                        None => format!("{}{}", existing_body, body),
+                    }
+                } else if file.append.unwrap_or(false) {
+                    format!("{}{}", existing_body, body)
+                } else {
+                    body
+                };
             }
 
             write_file(&PathBuf::from(&to), &body).map_err(|err| {
@@ -119,5 +129,22 @@ impl Template {
             "Files successfully generated:\n\t{}",
             written_paths.join("\n\t")
         ))
+    }
+}
+
+pub fn parse_vars(vars: &Option<HashMap<String, String>>) -> Option<Map<String, Value>> {
+    vars.as_ref().map(|vars| {
+        let mut values_map = Map::new();
+        for (k, v) in vars {
+            values_map.insert(k.clone(), Value::String(v.clone()));
+        }
+        values_map
+    })
+}
+
+pub fn vars_to_value(vars: &Option<Map<String, Value>>) -> Value {
+    match vars {
+        Some(map) => Value::Object(map.clone()),
+        None => Value::Object(Map::new()),
     }
 }

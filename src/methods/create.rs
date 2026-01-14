@@ -6,6 +6,7 @@ use crate::{
     templates::INDEX_FILE,
 };
 
+// TODO:
 // maybe add editor command and open template after
 // use std::process::Command as StdCmd;
 // // StdCmd::new("zed")
@@ -45,7 +46,7 @@ to: <%- folder %>/somefile.{}
         args.language
     );
     let index = &args.path.join(INDEX_FILE);
-    match write_file(&index, &index_content) {
+    match write_file(index, &index_content) {
         Ok(_) => {
             println!(
                 "Generated empty template {}/{} on path '{}'\n\tindex file: {}",

@@ -6,6 +6,7 @@ pub fn parse_ejs(raw: String, values: serde_json::Value) -> Result<String, Strin
     _ = parser.add("tmp".into(), raw);
     parser.render("tmp", values)
 }
+
 #[cfg(test)]
 mod test {
     use super::*;

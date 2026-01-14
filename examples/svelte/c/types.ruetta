@@ -4,4 +4,5 @@ to: <%- folder %>/types.ts
 append: true
 exclude_if: noTypes
 ---
+
 export type <%= Name %> = { <%= name %>: string };

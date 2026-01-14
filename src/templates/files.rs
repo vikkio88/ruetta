@@ -1,5 +1,7 @@
 use std::collections::HashMap;
 
+use serde_json::{Map, Value};
+
 use crate::templates::ejs::parse_ejs;
 const FRONT_MATTER_DELIM: &str = "---";
 
@@ -76,22 +78,16 @@ impl RuettaFile {
         parse_ejs(self.to.clone(), values)
     }
 
-    pub fn body(
-        &self,
-        name: &str,
-        vars: &Option<HashMap<String, String>>,
-    ) -> Result<String, String> {
+    pub fn body(&self, name: &str, vars: &Option<Map<String, Value>>) -> Result<String, String> {
         let mut values = serde_json::json!({
             "name": lowercase_first(name),
             "Name": capitalize_first(name),
         });
 
-        if let Some(vars) = vars
+        if let Some(vars_map) = vars
             && let Some(values_map) = values.as_object_mut()
         {
-            for (k, v) in vars {
-                values_map.insert(k.clone(), serde_json::Value::String(v.clone()));
-            }
+            values_map.extend(vars_map.clone());
         }
 
         parse_ejs(self.body.clone(), values)
