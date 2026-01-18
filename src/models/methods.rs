@@ -4,6 +4,7 @@ use std::fmt::Display;
 pub enum Method {
     Init,
     Info,
+    List,
     Clean,
     Create,
     Make,
@@ -15,6 +16,7 @@ impl Display for Method {
         let name = match self {
             Method::Init => "init",
             Method::Info => "info",
+            Method::List => "list",
             Method::Clean => "clean",
             Method::Create => "create",
             Method::Make => "make",
@@ -30,6 +32,7 @@ impl Method {
         Ok(match method {
             "init" => Self::Init,
             "info" | "i" => Self::Info,
+            "list" | "ls" | "l" => Self::List,
             "clean" | "cl" => Self::Clean,
             "create" | "c" => Self::Create,
             "make" | "mk" | "m" => Self::Make,
