@@ -51,3 +51,35 @@ pub fn rm_file(path: &PathBuf) -> bool {
 
     fs::remove_file(path).is_ok()
 }
+
+#[derive(PartialEq)]
+pub enum ItemKind {
+    File,
+    Dir,
+}
+pub struct Item {
+    pub name: String,
+    pub kind: ItemKind,
+    pub path: PathBuf,
+}
+pub fn ls(path: &PathBuf) -> Result<Vec<Item>, String> {
+    let entries = fs::read_dir(path).map_err(|e| e.to_string())?;
+
+    let mut out: Vec<Item> = Vec::new();
+
+    for entry in entries {
+        let entry = entry.map_err(|e| e.to_string())?;
+        let metadata = entry.metadata().map_err(|e| e.to_string())?;
+        out.push(Item {
+            name: entry.file_name().to_string_lossy().into_owned(),
+            kind: if metadata.is_dir() {
+                ItemKind::Dir
+            } else {
+                ItemKind::File
+            },
+            path: entry.path(),
+        });
+    }
+
+    Ok(out)
+}
