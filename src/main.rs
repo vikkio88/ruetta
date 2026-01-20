@@ -6,6 +6,7 @@ use crate::{
         help::{help, help_with_error},
         info::info,
         init::init,
+        list::list,
         make::make,
         version::version,
     },
@@ -46,6 +47,7 @@ fn main() {
     match cmd.method {
         Method::Init => init(config, cmd),
         Method::Info => info(config, cmd),
+        Method::List => list(config, cmd),
         Method::Clean => clean(config, cmd),
         Method::Create => create(config, cmd),
         Method::Make => make(config, cmd),
