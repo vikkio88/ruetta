@@ -26,6 +26,10 @@ COMMANDS
     Remove the template folder
     Example: ruetta clean
 
+  list (ls, l)
+    Show a list of all of the templates available
+    Example: ruetta list
+
   info (i)
     Show information about a template
     Example: ruetta info svelte component

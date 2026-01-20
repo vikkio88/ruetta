@@ -22,6 +22,14 @@ Remove the template folder.
 `ruetta clean`
 
 
+### list
+Show a list of all of the available templates.
+
+*Aliases: ls l*
+
+`ruetta list`
+
+
 ### info
 Show information about a template.
 
